@@ -59,11 +59,11 @@ public class BooheeRuler extends ViewGroup {
   private void initRuler() {
     switch (style) {
       case STYLE_TOP:
-        innerRuler = new TopRuler(getContext());
+        //innerRuler = new TopRuler(getContext());
         setHorizontalRulerPadding();
         break;
       case STYLE_BOTTOM:
-        innerRuler = new BottomRuler(getContext());
+        //innerRuler = new BottomRuler(getContext());
         setHorizontalRulerPadding();
         break;
     }
