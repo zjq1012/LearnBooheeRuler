@@ -1,9 +1,11 @@
 package com.psi.learnbooheeruler;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.ColorInt;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -34,6 +36,15 @@ public class BooheeRuler extends ViewGroup {
   private int cursorWidth = 8, cursorHeight = 70;
   // 文字大小
   private int textSize = 12;
+  // 小刻度颜色
+  private @ColorInt int smallScaleColor =
+      getContext().getResources().getColor(R.color.colorSmallScale);
+  // 大刻度颜色
+  private @ColorInt int bigScaleColor = getContext().getResources().getColor(R.color.colorBigScale);
+  // 刻度文字颜色
+  private @ColorInt int numberTextColor =
+      getContext().getResources().getColor(R.color.colorNumberText);
+
   // 尺子两边的 padding
   private int paddingStartAndEnd = 0;
   // 尺子 padding
@@ -49,11 +60,21 @@ public class BooheeRuler extends ViewGroup {
   public BooheeRuler(Context context, AttributeSet attrs) {
     super(context, attrs);
     initRuler();
+    initAttrs(attrs);
   }
 
   public BooheeRuler(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
     initRuler();
+    initAttrs(attrs);
+  }
+
+  private void initAttrs(AttributeSet attrs) {
+    TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.BooheeRuler);
+    smallScaleColor = typedArray.getColor(R.styleable.BooheeRuler_smallScaleColor, smallScaleColor);
+    bigScaleColor = typedArray.getColor(R.styleable.BooheeRuler_bigScaleColor, bigScaleColor);
+    numberTextColor = typedArray.getColor(R.styleable.BooheeRuler_numberTextColor, numberTextColor);
+    typedArray.recycle();
   }
 
   private void initRuler() {
@@ -82,30 +103,29 @@ public class BooheeRuler extends ViewGroup {
   }
 
   // @formatter:off
-  private void initCursorBounds() {
-    getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-      @Override public boolean onPreDraw() {
-        getViewTreeObserver().removeOnPreDrawListener(this);
-        switch (style) {
-          case STYLE_TOP:
-            cursorDrawable.setBounds(getWidth() / 2 - cursorWidth / 2, 0, getWidth() / 2 + cursorWidth / 2, cursorHeight);
-            break;
-          case STYLE_BOTTOM:
-            cursorDrawable.setBounds(getWidth() / 2 - cursorWidth / 2, getHeight() - cursorHeight, getWidth() / 2 + cursorWidth / 2, getHeight());
-            break;
-        }
-        return true;
-      }
-    });
-  }
+    private void initCursorBounds() {
+        getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                getViewTreeObserver().removeOnPreDrawListener(this);
+                switch (style) {
+                    case STYLE_TOP:
+                        cursorDrawable.setBounds(getWidth() / 2 - cursorWidth / 2, 0, getWidth() / 2 + cursorWidth / 2, cursorHeight);
+                        break;
+                    case STYLE_BOTTOM:
+                        cursorDrawable.setBounds(getWidth() / 2 - cursorWidth / 2, getHeight() - cursorHeight, getWidth() / 2 + cursorWidth / 2, getHeight());
+                        break;
+                }
+                return true;
+            }
+        });
+    }
 
-  // @formatter:on
-  @Override protected void onLayout(boolean changed, int l, int t, int r, int b) {
-    // 定义InnerRuler的位置
-    innerRuler.layout(paddingLeft, paddingTop, r - l - paddingRight, b - t - paddingBottom);
-  }
-
-
+    // @formatter:on
+    @Override protected void onLayout(boolean changed, int l, int t, int r, int b) {
+      // 定义InnerRuler的位置
+      innerRuler.layout(paddingLeft, paddingTop, r - l - paddingRight, b - t - paddingBottom);
+    }
 
   @Override protected void dispatchDraw(Canvas canvas) {
     super.dispatchDraw(canvas);

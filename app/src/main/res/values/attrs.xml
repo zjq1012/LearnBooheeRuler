@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BooheeRuler">
+        <attr name="smallScaleColor" format="color" />
+        <attr name="bigScaleColor" format="color" />
+        <attr name="cursorColor" format="color" />
+        <attr name="numberTextColor" format="color" />
+    </declare-styleable>
+</resources>
