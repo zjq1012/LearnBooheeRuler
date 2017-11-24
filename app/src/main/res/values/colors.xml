@@ -6,8 +6,8 @@
 
 
 
-  <color name="colorSmallScale">#e2e5e2</color>
-  <color name="colorBigScale">#f6f9f6</color>
+  <color name="colorSmallScale">#3F51B5</color>
+  <color name="colorBigScale">#303F9F</color>
   <color name="colorCursor">#4bbb74</color>
   <color name="colorNumberText">#2B2E2B</color>
 </resources>

@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
@@ -16,103 +17,111 @@ import android.view.ViewTreeObserver;
 
 public class BooheeRuler extends ViewGroup {
 
-    private static final int STYLE_TOP = 1, STYLE_BOTTOM = 2;
+  private static final int STYLE_TOP = 1, STYLE_BOTTOM = 2;
 
-    // 内部尺子
-    private InnerRuler innerRuler;
-    // 光标画笔
-    private Paint cursorPaint;
-    // 光标 Drawable
-    private Drawable cursorDrawable;
-    // 刻度间距
-    private int interval = 18;
-    // 大刻度包含的小刻度数量
-    private int count = 10;
-    // 大刻度宽度 长度
-    private int bigScaleWidth = 5, bigScaleHeight = 60;
-    // 小刻度宽度 长度
-    private int smallScaleWidth = 3, smallScaleHeight = 30;
-    // 光标宽度 长度
-    private int cursorWidth = 8, cursorHeight = 70;
-    // 文字大小
-    private int textSize = 12;
-    // 小刻度颜色
-    private @ColorInt int smallScaleColor =
-        getContext().getResources().getColor(R.color.colorSmallScale);
-    // 大刻度颜色
-    private @ColorInt int bigScaleColor = getContext().getResources()
-        .getColor(R.color.colorBigScale);
-    // 刻度文字颜色
-    private @ColorInt int numberTextColor =
-        getContext().getResources().getColor(R.color.colorNumberText);
+  // context
+  private Context context;
+  // 内部尺子
+  private InnerRuler innerRuler;
+  // 光标画笔
+  private Paint cursorPaint;
+  // 光标 Drawable
+  private Drawable cursorDrawable;
 
-    // 尺子两边的 padding
-    private int paddingStartAndEnd = 0;
-    // 尺子 padding
-    private int paddingLeft, paddingRight, paddingTop, paddingBottom;
-    // 尺子样式
-    private int style = STYLE_TOP;
+  // 刻度间距
+  private int interval = 18;
+  // 大刻度包含的小刻度数量
+  private int count = 10;
+  // 大刻度宽度 长度
+  private int bigScaleWidth = 5, bigScaleHeight = 60;
+  // 小刻度宽度 长度
+  private int smallScaleWidth = 3, smallScaleHeight = 30;
+  // 光标宽度 长度
+  private int cursorWidth = 8, cursorHeight = 70;
+  // 最小刻度 最大刻度
+  private int minScale = 400, maxScale = 2000;
+  // 文字大小
+  private int numberTextSize = 28;
+  // 文字外边距
+  private int textMargin = 10;
+  // 小刻度颜色
+  private @ColorInt int smallScaleColor = getContext().getResources().getColor(R.color.colorSmallScale);
+  // 大刻度颜色
+  private @ColorInt int bigScaleColor = getContext().getResources().getColor(R.color.colorBigScale);
+  // 刻度文字颜色
+  private @ColorInt int numberTextColor = getContext().getResources().getColor(R.color.colorNumberText);
 
+  // 尺子两边的 padding
+  private int paddingStartAndEnd = 0;
+  // 尺子 padding
+  private int paddingLeft, paddingRight, paddingTop, paddingBottom;
+  // 尺子样式
+  private int style = STYLE_TOP;
 
-    public BooheeRuler(Context context) {
-        super(context);
-        initRuler();
+  public BooheeRuler(Context context) {
+    super(context);
+    initRuler();
+  }
+
+  public BooheeRuler(Context context, AttributeSet attrs) {
+    super(context, attrs);
+    initAttrs(context, attrs);
+    initRuler();
+  }
+
+  public BooheeRuler(Context context, AttributeSet attrs, int defStyleAttr) {
+    super(context, attrs, defStyleAttr);
+    initAttrs(context, attrs);
+    initRuler();
+  }
+
+  // @formatter:off
+  private void initAttrs(Context context,AttributeSet attrs) {
+    TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.BooheeRuler);
+    //TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.BooheeRuler, 0, 0);
+    smallScaleColor = typedArray.getColor(R.styleable.BooheeRuler_smallScaleColor, smallScaleColor);
+    bigScaleColor = typedArray.getColor(R.styleable.BooheeRuler_bigScaleColor, bigScaleColor);
+    numberTextColor = typedArray.getColor(R.styleable.BooheeRuler_numberTextColor, numberTextColor);
+    cursorDrawable = typedArray.getDrawable(R.styleable.BooheeRuler_cursorBackground);
+    if (cursorDrawable == null) {
+      cursorDrawable = getResources().getDrawable(R.drawable.cursor_shape);
     }
+    paddingStartAndEnd = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_paddingStartAndEnd, paddingStartAndEnd);
+    minScale = typedArray.getInteger(R.styleable.BooheeRuler_minScale,minScale);
+    maxScale = typedArray.getInteger(R.styleable.BooheeRuler_maxScale,maxScale);
+    textMargin = typedArray.getDimensionPixelOffset(R.styleable.BooheeRuler_textMargin,textMargin);
+    count = typedArray.getInteger(R.styleable.BooheeRuler_count,count);
+    numberTextSize = typedArray.getDimensionPixelSize(R.styleable.BooheeRuler_numberTextSize,numberTextSize);
+    typedArray.recycle();
+  }
 
-
-    public BooheeRuler(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        initRuler();
-        initAttrs(attrs);
+  private void initRuler() {
+    this.context = getContext();
+    switch (style) {
+      case STYLE_TOP:
+        innerRuler = new TopRuler(context, this);
+        setHorizontalRulerPadding();
+        break;
+      case STYLE_BOTTOM:
+        //innerRuler = new BottomRuler(getContext());
+        setHorizontalRulerPadding();
+        break;
     }
+    // 添加至ViewGroup
+    LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+    addView(innerRuler, lp);
 
+    initCursorBounds();
+  }
 
-    public BooheeRuler(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        initRuler();
-        initAttrs(attrs);
-    }
+  private void setHorizontalRulerPadding() {
+    paddingTop = 0;
+    paddingBottom = 0;
+    paddingLeft = paddingStartAndEnd;
+    paddingRight = paddingStartAndEnd;
+  }
 
-
-    private void initAttrs(AttributeSet attrs) {
-        TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.BooheeRuler);
-        smallScaleColor = typedArray.getColor(R.styleable.BooheeRuler_smallScaleColor,
-            smallScaleColor);
-        bigScaleColor = typedArray.getColor(R.styleable.BooheeRuler_bigScaleColor, bigScaleColor);
-        numberTextColor = typedArray.getColor(R.styleable.BooheeRuler_numberTextColor,
-            numberTextColor);
-        typedArray.recycle();
-    }
-
-
-    private void initRuler() {
-        switch (style) {
-            case STYLE_TOP:
-                //innerRuler = new TopRuler(getContext());
-                setHorizontalRulerPadding();
-                break;
-            case STYLE_BOTTOM:
-                //innerRuler = new BottomRuler(getContext());
-                setHorizontalRulerPadding();
-                break;
-        }
-        // 添加至ViewGroup
-        LayoutParams lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-        addView(innerRuler, lp);
-
-        initCursorBounds();
-    }
-
-
-    private void setHorizontalRulerPadding() {
-        paddingTop = 0;
-        paddingBottom = 0;
-        paddingLeft = paddingStartAndEnd;
-        paddingRight = paddingStartAndEnd;
-    }
-
-
-    // @formatter:off
+  // @formatter:off
     private void initCursorBounds() {
         getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
@@ -133,48 +142,74 @@ public class BooheeRuler extends ViewGroup {
 
     // @formatter:on
     @Override protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        // 定义InnerRuler的位置
-        innerRuler.layout(paddingLeft, paddingTop, r - l - paddingRight, b - t - paddingBottom);
+      Log.i("TAG", "changed:" + changed + ",l:" + l + ",t:" + t + ",r:" + r + ",b:" + b);
+      // 定义InnerRuler的位置
+      innerRuler.layout(paddingLeft, paddingTop, r - l - paddingRight, b - t - paddingBottom);
     }
 
+  @Override protected void dispatchDraw(Canvas canvas) {
+    super.dispatchDraw(canvas);
+    // 绘制游标 在这里绘制时因为要覆盖子View
+    cursorDrawable.draw(canvas);
+  }
 
-    @Override protected void dispatchDraw(Canvas canvas) {
-        super.dispatchDraw(canvas);
-        // 绘制游标 在这里绘制时因为要覆盖子View
-        cursorDrawable.draw(canvas);
-    }
+  @Override protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    super.onSizeChanged(w, h, oldw, oldh);
+    initCursorBounds();
+  }
 
+  /**
+   * Getter
+   */
+  public int getBigScaleWidth() {
+    return bigScaleWidth;
+  }
 
-    @Override protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        initCursorBounds();
-    }
+  public int getBigScaleHeight() {
+    return bigScaleHeight;
+  }
 
+  public int getSmallScaleWidth() {
+    return smallScaleWidth;
+  }
 
-    /**
-     * Getter
-     */
-    protected int getBigScaleWidth() {
-        return bigScaleWidth;
-    }
+  public int getSmallScaleHeight() {
+    return smallScaleHeight;
+  }
 
+  public int getNumberTextSize() {
+    return numberTextSize;
+  }
 
-    protected int getBigScaleHeight() {
-        return bigScaleHeight;
-    }
+  public int getInterval() {
+    return interval;
+  }
 
+  public int getMinScale() {
+    return minScale;
+  }
 
-    protected int getSmallScaleWidth() {
-        return smallScaleWidth;
-    }
+  public int getMaxScale() {
+    return maxScale;
+  }
 
+  public int getTextMargin() {
+    return textMargin;
+  }
 
-    protected int getSmallScaleHeight() {
-        return smallScaleHeight;
-    }
+  public int getCount() {
+    return count;
+  }
 
+  public int getSmallScaleColor() {
+    return smallScaleColor;
+  }
 
-    public int getTextSize() {
-        return textSize;
-    }
+  public int getBigScaleColor() {
+    return bigScaleColor;
+  }
+
+  public int getNumberTextColor() {
+    return numberTextColor;
+  }
 }

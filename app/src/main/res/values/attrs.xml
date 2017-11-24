@@ -1,9 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="BooheeRuler">
-        <attr name="smallScaleColor" format="color" />
-        <attr name="bigScaleColor" format="color" />
-        <attr name="cursorColor" format="color" />
-        <attr name="numberTextColor" format="color" />
-    </declare-styleable>
+  <declare-styleable name="BooheeRuler">
+    <attr name="smallScaleColor"
+        format="color"/>
+    <attr name="bigScaleColor"
+        format="color"/>
+    <attr name="cursorColor"
+        format="color"/>
+    <attr name="numberTextColor"
+        format="color"/>
+    <attr name="rulerStyle"
+        format="enum">
+      <enum name="TOP"
+          value="1"></enum>
+      <enum name="BOTTOM"
+          value="2"></enum>
+    </attr>
+    <attr name="cursorBackground"
+        format="reference|color"/>
+    <attr name="paddingStartAndEnd"
+        format="dimension"/>
+    <attr name="minScale"
+        format="integer"/>
+    <attr name="maxScale"
+        format="integer"/>
+    <attr name="textMargin"
+        format="dimension"/>
+    <attr name="count"
+        format="integer"/>
+    <attr name="numberTextSize"
+        format="dimension"/>
+  </declare-styleable>
 </resources>
