@@ -10,6 +10,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import java.util.logging.Logger;
 
 /**
  * Created by dorado on 2017/11/23.
@@ -45,11 +46,13 @@ public class BooheeRuler extends ViewGroup {
   // 文字外边距
   private int textMargin = 10;
   // 小刻度颜色
-  private @ColorInt int smallScaleColor = getContext().getResources().getColor(R.color.colorSmallScale);
+  private @ColorInt int smallScaleColor =
+      getContext().getResources().getColor(R.color.colorSmallScale);
   // 大刻度颜色
   private @ColorInt int bigScaleColor = getContext().getResources().getColor(R.color.colorBigScale);
   // 刻度文字颜色
-  private @ColorInt int numberTextColor = getContext().getResources().getColor(R.color.colorNumberText);
+  private @ColorInt int numberTextColor =
+      getContext().getResources().getColor(R.color.colorNumberText);
 
   // 尺子两边的 padding
   private int paddingStartAndEnd = 0;
@@ -60,17 +63,20 @@ public class BooheeRuler extends ViewGroup {
 
   public BooheeRuler(Context context) {
     super(context);
+    Log.i("TAG", "BooheeRuler构造方法1");
     initRuler();
   }
 
   public BooheeRuler(Context context, AttributeSet attrs) {
     super(context, attrs);
+    Log.i("TAG", "BooheeRuler构造方法2");
     initAttrs(context, attrs);
     initRuler();
   }
 
   public BooheeRuler(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
+    Log.i("TAG", "BooheeRuler构造方法3");
     initAttrs(context, attrs);
     initRuler();
   }
@@ -103,8 +109,7 @@ public class BooheeRuler extends ViewGroup {
         setHorizontalRulerPadding();
         break;
       case STYLE_BOTTOM:
-        //innerRuler = new BottomRuler(getContext());
-        setHorizontalRulerPadding();
+
         break;
     }
     // 添加至ViewGroup
@@ -123,9 +128,11 @@ public class BooheeRuler extends ViewGroup {
 
   // @formatter:off
     private void initCursorBounds() {
+      Log.i("TAG","BooheeRuler initCursorBounds");
         getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
+              Log.i("TAG","BooheeRuler preDraw");
                 getViewTreeObserver().removeOnPreDrawListener(this);
                 switch (style) {
                     case STYLE_TOP:
@@ -142,19 +149,27 @@ public class BooheeRuler extends ViewGroup {
 
     // @formatter:on
     @Override protected void onLayout(boolean changed, int l, int t, int r, int b) {
+      Log.i("TAG", "BooheeRuler onLayout");
       Log.i("TAG", "changed:" + changed + ",l:" + l + ",t:" + t + ",r:" + r + ",b:" + b);
       // 定义InnerRuler的位置
       innerRuler.layout(paddingLeft, paddingTop, r - l - paddingRight, b - t - paddingBottom);
     }
 
   @Override protected void dispatchDraw(Canvas canvas) {
+    Log.i("TAG", "BooheeRuler dispatchDraw");
     super.dispatchDraw(canvas);
     // 绘制游标 在这里绘制时因为要覆盖子View
     cursorDrawable.draw(canvas);
   }
 
+  @Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    Log.i("TAG","BooheeRuler onMeasure");
+  }
+
   @Override protected void onSizeChanged(int w, int h, int oldw, int oldh) {
     super.onSizeChanged(w, h, oldw, oldh);
+    Log.i("TAG", "BooheeRuler onSizeChanged");
     initCursorBounds();
   }
 

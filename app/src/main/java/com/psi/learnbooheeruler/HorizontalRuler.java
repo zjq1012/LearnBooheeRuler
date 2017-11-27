@@ -17,8 +17,10 @@ public abstract class HorizontalRuler extends InnerRuler {
 
   public HorizontalRuler(Context context, BooheeRuler ruler) {
     super(context, ruler);
+    Log.i("TAG","HorizontalRuler构造方法");
     getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
       @Override public void onGlobalLayout() {
+        Log.i("TAG","BooheeRuler onGlobalLayout");
         getViewTreeObserver().removeOnGlobalLayoutListener(this);
         goToScale(789);
       }
@@ -129,9 +131,20 @@ public abstract class HorizontalRuler extends InnerRuler {
 
   @Override protected void onSizeChanged(int w, int h, int oldw, int oldh) {
     super.onSizeChanged(w, h, oldw, oldh);
+    Log.i("TAG","HorizontalRuler onSizeChanged");
     totalLength = (outerRuler.getMaxScale() - outerRuler.getMinScale()) * outerRuler.getInterval();
     // 最小只能滑到半屏
     minXPosition = -w / 2;
     maxXPosition = totalLength - w / 2;
+  }
+
+  @Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    Log.i("TAG","HorizontalRuler onMeasure");
+  }
+
+  @Override protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    super.onLayout(changed, left, top, right, bottom);
+    Log.i("TAG","HorizontalRuler onLayout");
   }
 }
