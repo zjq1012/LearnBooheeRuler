@@ -17,6 +17,12 @@ public abstract class HorizontalRuler extends InnerRuler {
 
   public HorizontalRuler(Context context, BooheeRuler ruler) {
     super(context, ruler);
+    getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+      @Override public void onGlobalLayout() {
+        getViewTreeObserver().removeOnGlobalLayoutListener(this);
+        goToScale(789);
+      }
+    });
   }
 
   @Override public boolean onTouchEvent(MotionEvent event) {
@@ -67,7 +73,8 @@ public abstract class HorizontalRuler extends InnerRuler {
   }
 
   @Override void goToScale(int scale) {
-
+    currentScale = Math.round(scale);
+    scrollTo(convertScaleToScrollX(currentScale), 0);
   }
 
   @Override public void scrollTo(int x, int y) {
@@ -87,17 +94,37 @@ public abstract class HorizontalRuler extends InnerRuler {
    * 根据当前滑动位置计算出对应的刻度
    */
   private float convertScrollXToScale(int x) {
-    int diffX = x - minXPosition;
-    int totalScale = outerRuler.getMaxScale() - outerRuler.getMinScale();
-    float diffScale = totalScale * diffX / totalLength;
-    return diffScale + outerRuler.getMinScale();
+    float scale = (x + getWidth() / 2) / (float) outerRuler.getInterval() + outerRuler.getMinScale();
+    return scale;
+  }
+
+  /**
+   * 根据刻度计算出位置
+   * 因为只需屏幕中心滑动至刻度 所以-getWidt()/2
+   */
+  private int convertScaleToScrollX(float scale) {
+    int i = (int) ((scale - outerRuler.getMinScale()) * outerRuler.getInterval() - getWidth() / 2);
+    return i;
   }
 
   @Override public void computeScroll() {
     if (scroller.computeScrollOffset()) {
       scrollTo(scroller.getCurrX(), scroller.getCurrY());
+      if (!scroller.computeScrollOffset()) {
+        if (currentScale != Math.round(currentScale)) {
+          scrollBackToCurrentScale();
+        }
+      }
       invalidate();
     }
+  }
+
+  //把移动后光标对准距离最近的刻度，就是回弹到最近刻度
+  private void scrollBackToCurrentScale() {
+    //渐变回弹
+    currentScale = Math.round(currentScale);
+    scroller.startScroll(getScrollX(), 0, convertScaleToScrollX(currentScale) - getScrollX(), 0, 1000);
+    invalidate();
   }
 
   @Override protected void onSizeChanged(int w, int h, int oldw, int oldh) {
